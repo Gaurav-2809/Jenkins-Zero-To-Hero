@@ -20,24 +20,25 @@ pipeline {
       }
     }
     stage('Static Code Analysis') {
-    environment {
-        SONAR_URL = "http://23.22.97.12:9000"
-        JAVA_HOME = "/usr/lib/jvm/java-17-openjdk" // Adjust path to Java 17
-        PATH = "${JAVA_HOME}/bin:${env.PATH}"
-    }
-    steps {
-        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-            dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
-                sh """
-                  mvn clean verify sonar:sonar \
-                  -Dsonar.login=${SONAR_AUTH_TOKEN} \
-                  -Dsonar.host.url=${SONAR_URL} \
-                  -B
-                """
+      environment {
+          SONAR_URL = "http://23.22.97.12:9000"
+          JAVA_HOME = "/usr/lib/jvm/java-17-openjdk" // Replace with your JDK 17 path
+          PATH = "${JAVA_HOME}/bin:${env.PATH}"
+      }
+      steps {
+          withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+              dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
+                  sh '''
+                    mvn clean verify sonar:sonar \
+                    -Dsonar.login=$SONAR_AUTH_TOKEN \
+                    -Dsonar.host.url=$SONAR_URL \
+                    -B
+                  '''
+              }
           }
-        }
       }
     }
+
     stage('Build and Push Docker Image') {
       environment {
         DOCKER_IMAGE = "gaurav2809/ultimate-cicd:${BUILD_NUMBER}"
