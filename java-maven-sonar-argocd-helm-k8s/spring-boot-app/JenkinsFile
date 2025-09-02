@@ -32,7 +32,7 @@ pipeline {
     stage('Build and Push Docker Image') {
       agent any   // run on Jenkins node, not inside Maven container
       environment {
-        DOCKER_IMAGE = "abhishekf5/ultimate-cicd:${BUILD_NUMBER}"
+        DOCKER_IMAGE = "gaurav2809/ultimate-cicd:${BUILD_NUMBER}"
       }
       steps {
         script {
