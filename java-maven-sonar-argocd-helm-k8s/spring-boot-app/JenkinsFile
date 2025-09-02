@@ -20,12 +20,21 @@ pipeline {
       }
     }
     stage('Static Code Analysis') {
-      environment {
+    environment {
         SONAR_URL = "http://23.22.97.12:9000"
-      }
-      steps {
+        JAVA_HOME = "/usr/lib/jvm/java-17-openjdk" // Adjust path to Java 17
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"
+    }
+    steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-          sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+            dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
+                sh """
+                  mvn clean verify sonar:sonar \
+                  -Dsonar.login=${SONAR_AUTH_TOKEN} \
+                  -Dsonar.host.url=${SONAR_URL} \
+                  -B
+                """
+          }
         }
       }
     }
